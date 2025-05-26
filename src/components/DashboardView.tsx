@@ -492,7 +492,7 @@ const DashboardView = () => {
             </div>
           </div>
         </CardContent>
-      </div>
+      </Card>
     </div>
   );
 };
