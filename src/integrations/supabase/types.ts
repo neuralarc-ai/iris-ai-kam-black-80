@@ -47,6 +47,7 @@ export type Database = {
           name: string | null
           openrouter_api_key: string | null
           pin: string
+          Type: Database["public"]["Enums"]["User Type"] | null
           updated_at: string
           user_id: string | null
         }
@@ -57,6 +58,7 @@ export type Database = {
           name?: string | null
           openrouter_api_key?: string | null
           pin: string
+          Type?: Database["public"]["Enums"]["User Type"] | null
           updated_at?: string
           user_id?: string | null
         }
@@ -67,6 +69,7 @@ export type Database = {
           name?: string | null
           openrouter_api_key?: string | null
           pin?: string
+          Type?: Database["public"]["Enums"]["User Type"] | null
           updated_at?: string
           user_id?: string | null
         }
@@ -182,7 +185,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      "User Type": "Admin" | "User"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -297,6 +300,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      "User Type": ["Admin", "User"],
+    },
   },
 } as const

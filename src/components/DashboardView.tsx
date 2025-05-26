@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +16,9 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line
+  Line,
+  Area,
+  AreaChart
 } from 'recharts';
 import { 
   TrendingUp, 
@@ -26,7 +29,9 @@ import {
   Calendar,
   MessageSquare,
   Brain,
-  Activity
+  Activity,
+  User,
+  Clock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UserActivityCard from './UserActivityCard';
@@ -89,7 +94,11 @@ const DashboardView = () => {
       const [accountsRes, projectsRes, updatesRes] = await Promise.all([
         supabase.from('accounts').select('*', { count: 'exact', head: true }),
         supabase.from('projects').select('*, account:accounts(name)'),
-        supabase.from('updates').select('*, project:projects(name, account:accounts(name))').order('created_at', { ascending: false }).limit(10)
+        supabase.from('updates').select(`
+          *, 
+          project:projects(name, account:accounts(name)),
+          created_by_profile:profiles!updates_created_by_fkey(name, pin)
+        `).order('created_at', { ascending: false }).limit(10)
       ]);
 
       if (accountsRes.error) throw accountsRes.error;
@@ -126,14 +135,16 @@ const DashboardView = () => {
 
       setProjectsByStatus(Object.values(statusGroups));
 
-      // Format recent activity
+      // Format recent activity with proper user information
       const formattedActivity = updates.map(update => ({
         id: update.id,
         type: 'update',
-        description: `Update added to ${update.project.name} (${update.project.account.name})`,
+        description: update.content,
         date: update.created_at,
         project_name: update.project.name,
         account_name: update.project.account.name,
+        created_by: update.created_by_profile?.name || `User ${update.created_by_profile?.pin}`,
+        update_type: update.type,
       }));
 
       setRecentActivity(formattedActivity);
@@ -300,15 +311,15 @@ const DashboardView = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Sales Pipeline */}
+        {/* Sales Pipeline - Changed to Area Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Sales Pipeline</CardTitle>
-            <CardDescription>Projects by status</CardDescription>
+            <CardTitle>Sales Pipeline Flow</CardTitle>
+            <CardDescription>Pipeline progression and values</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={projectsByStatus}>
+              <AreaChart data={projectsByStatus}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="status" fontSize={12} />
                 <YAxis />
@@ -318,8 +329,23 @@ const DashboardView = () => {
                     name === 'count' ? 'Projects' : 'Value'
                   ]}
                 />
-                <Bar dataKey="count" fill="#8884d8" />
-              </BarChart>
+                <Area 
+                  type="monotone" 
+                  dataKey="count" 
+                  stackId="1" 
+                  stroke="#8884d8" 
+                  fill="#8884d8" 
+                  fillOpacity={0.6}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="value" 
+                  stackId="2" 
+                  stroke="#82ca9d" 
+                  fill="#82ca9d" 
+                  fillOpacity={0.6}
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
@@ -379,7 +405,7 @@ const DashboardView = () => {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
+        {/* Recent Activity - Improved Layout */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -389,19 +415,45 @@ const DashboardView = () => {
             <CardDescription>Latest updates across all projects</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {recentActivity.length > 0 ? (
                 recentActivity.slice(0, 5).map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{activity.description}</p>
-                      <p className="text-xs text-gray-500">{formatDate(activity.date)}</p>
+                  <div key={activity.id} className="border-l-4 border-blue-200 pl-4 py-3 bg-gray-50 rounded-r-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
+                          {activity.update_type}
+                        </Badge>
+                        <span className="text-sm font-medium text-gray-900">
+                          {activity.project_name}
+                        </span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-xs text-gray-500">
+                        <Clock className="h-3 w-3" />
+                        <span>{formatDate(activity.date)}</span>
+                      </div>
+                    </div>
+                    
+                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                      {activity.description}
+                    </p>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 text-xs text-gray-600">
+                        <span className="font-medium">{activity.account_name}</span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-xs text-gray-500">
+                        <User className="h-3 w-3" />
+                        <span>{activity.created_by}</span>
+                      </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-500 text-sm">No recent activity</p>
+                <div className="text-center py-8">
+                  <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 text-sm">No recent activity</p>
+                </div>
               )}
             </div>
           </CardContent>
@@ -439,7 +491,7 @@ const DashboardView = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };
