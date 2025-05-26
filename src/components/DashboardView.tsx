@@ -15,9 +15,7 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line,
-  Area,
-  AreaChart
+  Line
 } from 'recharts';
 import { 
   TrendingUp, 
@@ -28,9 +26,7 @@ import {
   Calendar,
   MessageSquare,
   Brain,
-  Activity,
-  User,
-  Clock
+  Activity
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UserActivityCard from './UserActivityCard';
@@ -56,8 +52,6 @@ interface RecentActivity {
   date: string;
   project_name?: string;
   account_name?: string;
-  created_by?: string;
-  update_type?: string;
 }
 
 interface UserActivity {
@@ -95,11 +89,7 @@ const DashboardView = () => {
       const [accountsRes, projectsRes, updatesRes] = await Promise.all([
         supabase.from('accounts').select('*', { count: 'exact', head: true }),
         supabase.from('projects').select('*, account:accounts(name)'),
-        supabase.from('updates').select(`
-          *, 
-          project:projects(name, account:accounts(name)),
-          created_by_profile:profiles!updates_created_by_fkey(name, pin)
-        `).order('created_at', { ascending: false }).limit(10)
+        supabase.from('updates').select('*, project:projects(name, account:accounts(name))').order('created_at', { ascending: false }).limit(10)
       ]);
 
       if (accountsRes.error) throw accountsRes.error;
@@ -136,16 +126,14 @@ const DashboardView = () => {
 
       setProjectsByStatus(Object.values(statusGroups));
 
-      // Format recent activity with proper user information
+      // Format recent activity
       const formattedActivity = updates.map(update => ({
         id: update.id,
         type: 'update',
-        description: update.content,
+        description: `Update added to ${update.project.name} (${update.project.account.name})`,
         date: update.created_at,
         project_name: update.project.name,
         account_name: update.project.account.name,
-        created_by: update.created_by_profile?.name || `User ${update.created_by_profile?.pin}`,
-        update_type: update.type,
       }));
 
       setRecentActivity(formattedActivity);
@@ -312,15 +300,15 @@ const DashboardView = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Sales Pipeline - Area Chart */}
+        {/* Sales Pipeline */}
         <Card>
           <CardHeader>
-            <CardTitle>Sales Pipeline Flow</CardTitle>
-            <CardDescription>Pipeline progression and values</CardDescription>
+            <CardTitle>Sales Pipeline</CardTitle>
+            <CardDescription>Projects by status</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={projectsByStatus}>
+              <BarChart data={projectsByStatus}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="status" fontSize={12} />
                 <YAxis />
@@ -330,23 +318,8 @@ const DashboardView = () => {
                     name === 'count' ? 'Projects' : 'Value'
                   ]}
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="count" 
-                  stackId="1" 
-                  stroke="#8884d8" 
-                  fill="#8884d8" 
-                  fillOpacity={0.6}
-                />
-                <Area 
-                  type="monotone" 
-                  dataKey="value" 
-                  stackId="2" 
-                  stroke="#82ca9d" 
-                  fill="#82ca9d" 
-                  fillOpacity={0.6}
-                />
-              </AreaChart>
+                <Bar dataKey="count" fill="#8884d8" />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
@@ -381,7 +354,7 @@ const DashboardView = () => {
         </Card>
       </div>
 
-      {/* User Activity Card */}
+      {/* User Activity Card - New Addition */}
       <UserActivityCard />
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -406,7 +379,7 @@ const DashboardView = () => {
           </CardContent>
         </Card>
 
-        {/* Recent Activity - Fixed Layout */}
+        {/* Recent Activity */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -416,45 +389,19 @@ const DashboardView = () => {
             <CardDescription>Latest updates across all projects</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {recentActivity.length > 0 ? (
                 recentActivity.slice(0, 5).map((activity) => (
-                  <div key={activity.id} className="border-l-4 border-blue-200 pl-4 py-3 bg-gray-50 rounded-r-lg">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
-                          {activity.update_type || 'Update'}
-                        </Badge>
-                        <span className="text-sm font-medium text-gray-900">
-                          {activity.project_name}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-1 text-xs text-gray-500">
-                        <Clock className="h-3 w-3" />
-                        <span>{formatDate(activity.date)}</span>
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
-                      {activity.description}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 text-xs text-gray-600">
-                        <span className="font-medium">{activity.account_name}</span>
-                      </div>
-                      <div className="flex items-center space-x-1 text-xs text-gray-500">
-                        <User className="h-3 w-3" />
-                        <span>{activity.created_by || 'Unknown User'}</span>
-                      </div>
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-900">{activity.description}</p>
+                      <p className="text-xs text-gray-500">{formatDate(activity.date)}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 text-sm">No recent activity</p>
-                </div>
+                <p className="text-gray-500 text-sm">No recent activity</p>
               )}
             </div>
           </CardContent>
