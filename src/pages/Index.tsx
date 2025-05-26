@@ -11,7 +11,7 @@ import QuickCreateModal from '@/components/QuickCreateModal';
 import SettingsModal from '@/components/modals/SettingsModal';
 
 const AppContent = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [quickCreateModalOpen, setQuickCreateModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
@@ -37,12 +37,10 @@ const AppContent = () => {
   };
 
   const handleCreateProject = (accountId: string) => {
-    // This will be handled by the AccountsView component
     console.log('Create project for account:', accountId);
   };
 
   const handleRefreshData = () => {
-    // Force refresh by changing tab and back
     const currentTab = activeTab;
     setActiveTab('');
     setTimeout(() => setActiveTab(currentTab), 100);

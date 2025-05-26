@@ -2,11 +2,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 
 const Login = () => {
   const [pin, setPin] = useState('');
@@ -66,34 +70,48 @@ const Login = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <Input
-                type="password"
-                placeholder="Enter 6-digit PIN"
-                value={pin}
-                onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="text-center text-lg tracking-widest border-gray-300 focus:border-black"
-                maxLength={6}
-                disabled={loading}
-              />
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 block text-center">
+                Enter your 6-digit PIN
+              </label>
+              <div className="flex justify-center">
+                <InputOTP
+                  maxLength={6}
+                  value={pin}
+                  onChange={(value) => setPin(value)}
+                  disabled={loading}
+                >
+                  <InputOTPGroup>
+                    <InputOTPSlot index={0} />
+                    <InputOTPSlot index={1} />
+                    <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
+                    <InputOTPSlot index={4} />
+                    <InputOTPSlot index={5} />
+                  </InputOTPGroup>
+                </InputOTP>
+              </div>
             </div>
+            
             {error && (
               <Alert className="border-red-200 bg-red-50">
                 <AlertDescription className="text-red-700">{error}</AlertDescription>
               </Alert>
             )}
+            
             <Button 
               type="submit" 
               className="w-full bg-black hover:bg-gray-800 text-white"
               disabled={loading || pin.length !== 6}
             >
-              {loading ? 'Checking PIN...' : 'Login'}
+              {loading ? 'Verifying PIN...' : 'Access System'}
             </Button>
           </form>
+          
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-center space-x-4 text-sm text-gray-500">
-              <span>Demo PINs: 123456</span>
+              <span>Demo PIN: 123456</span>
             </div>
             <div className="flex justify-center space-x-4 text-sm text-gray-500 mt-2">
               <a href="#" className="hover:text-black transition-colors">Help</a>
