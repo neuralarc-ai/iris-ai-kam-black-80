@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +29,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import UserActivityCard from './UserActivityCard';
 
 interface DashboardStats {
   totalAccounts: number;
@@ -353,6 +353,9 @@ const DashboardView = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* User Activity Card - New Addition */}
+      <UserActivityCard />
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* AI Insights */}
