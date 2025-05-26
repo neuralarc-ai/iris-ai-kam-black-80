@@ -10,6 +10,7 @@ import { FolderOpen, Search, DollarSign, Calendar, Plus, Eye, Trash2, MessageSqu
 import { useToast } from '@/hooks/use-toast';
 import CreateProjectModal from './modals/CreateProjectModal';
 import CreateUpdateModal from './modals/CreateUpdateModal';
+import ProjectDetailModal from './modals/ProjectDetailModal';
 
 interface Project {
   id: string;
@@ -32,6 +33,7 @@ const ProjectsView = () => {
   const [loading, setLoading] = useState(true);
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [createUpdateModalOpen, setCreateUpdateModalOpen] = useState(false);
+  const [projectDetailModalOpen, setProjectDetailModalOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const { toast } = useToast();
 
@@ -103,6 +105,11 @@ const ProjectsView = () => {
   const handleCreateUpdate = (projectId: string) => {
     setSelectedProjectId(projectId);
     setCreateUpdateModalOpen(true);
+  };
+
+  const handleViewProject = (projectId: string) => {
+    setSelectedProjectId(projectId);
+    setProjectDetailModalOpen(true);
   };
 
   const filteredProjects = projects.filter(project => {
@@ -222,7 +229,12 @@ const ProjectsView = () => {
                   {project.description || 'No description available'}
                 </p>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="border-gray-300 hover:border-black">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-gray-300 hover:border-black"
+                    onClick={() => handleViewProject(project.id)}
+                  >
                     <Eye className="h-3 w-3 mr-1" />
                     View Details
                   </Button>
@@ -281,6 +293,12 @@ const ProjectsView = () => {
         onOpenChange={setCreateUpdateModalOpen}
         onUpdateCreated={() => {}}
         preselectedProjectId={selectedProjectId}
+      />
+
+      <ProjectDetailModal
+        open={projectDetailModalOpen}
+        onOpenChange={setProjectDetailModalOpen}
+        projectId={selectedProjectId}
       />
     </>
   );

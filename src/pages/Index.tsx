@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import Login from '@/components/Login';
 import Layout from '@/components/Layout';
+import DashboardView from '@/components/DashboardView';
 import AccountsView from '@/components/AccountsView';
 import ProjectsView from '@/components/ProjectsView';
 import UpdatesView from '@/components/UpdatesView';
@@ -11,7 +12,7 @@ import SettingsModal from '@/components/modals/SettingsModal';
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState('accounts');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [quickCreateModalOpen, setQuickCreateModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
@@ -49,6 +50,8 @@ const AppContent = () => {
 
   const renderActiveView = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return <DashboardView />;
       case 'accounts':
         return <AccountsView onCreateProject={handleCreateProject} />;
       case 'projects':
@@ -56,7 +59,7 @@ const AppContent = () => {
       case 'updates':
         return <UpdatesView />;
       default:
-        return <AccountsView onCreateProject={handleCreateProject} />;
+        return <DashboardView />;
     }
   };
 

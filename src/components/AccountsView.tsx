@@ -9,6 +9,7 @@ import { Building2, Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import CreateProjectModal from './modals/CreateProjectModal';
 import CreateAccountModal from './modals/CreateAccountModal';
+import AccountDetailModal from './modals/AccountDetailModal';
 
 interface Account {
   id: string;
@@ -25,6 +26,7 @@ const AccountsView = ({ onCreateProject }: { onCreateProject: (accountId: string
   const [loading, setLoading] = useState(true);
   const [createProjectModalOpen, setCreateProjectModalOpen] = useState(false);
   const [createAccountModalOpen, setCreateAccountModalOpen] = useState(false);
+  const [accountDetailModalOpen, setAccountDetailModalOpen] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
   const { toast } = useToast();
 
@@ -69,6 +71,11 @@ const AccountsView = ({ onCreateProject }: { onCreateProject: (accountId: string
   const handleCreateProject = (accountId: string) => {
     setSelectedAccountId(accountId);
     setCreateProjectModalOpen(true);
+  };
+
+  const handleViewAccount = (accountId: string) => {
+    setSelectedAccountId(accountId);
+    setAccountDetailModalOpen(true);
   };
 
   const handleDeleteAccount = async (accountId: string, accountName: string) => {
@@ -171,7 +178,12 @@ const AccountsView = ({ onCreateProject }: { onCreateProject: (accountId: string
                   {account.description || 'No description available'}
                 </p>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1 border-gray-300 hover:border-black">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 border-gray-300 hover:border-black"
+                    onClick={() => handleViewAccount(account.id)}
+                  >
                     <Eye className="h-3 w-3 mr-1" />
                     View
                   </Button>
@@ -228,6 +240,12 @@ const AccountsView = ({ onCreateProject }: { onCreateProject: (accountId: string
         open={createAccountModalOpen}
         onOpenChange={setCreateAccountModalOpen}
         onAccountCreated={fetchAccounts}
+      />
+
+      <AccountDetailModal
+        open={accountDetailModalOpen}
+        onOpenChange={setAccountDetailModalOpen}
+        accountId={selectedAccountId}
       />
     </>
   );

@@ -23,6 +23,7 @@ const Layout = ({ children, activeTab, onTabChange, onShowCreateModal, onShowSet
   const { profile, logout } = useAuth();
 
   const tabs = [
+    { id: 'dashboard', label: 'Dashboard' },
     { id: 'accounts', label: 'Accounts' },
     { id: 'projects', label: 'Projects' },
     { id: 'updates', label: 'Updates' },
