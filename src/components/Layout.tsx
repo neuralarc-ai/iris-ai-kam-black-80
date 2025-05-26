@@ -20,7 +20,7 @@ interface LayoutProps {
 }
 
 const Layout = ({ children, activeTab, onTabChange, onShowCreateModal, onShowSettings }: LayoutProps) => {
-  const { user, logout } = useAuth();
+  const { profile, logout } = useAuth();
 
   const tabs = [
     { id: 'accounts', label: 'Accounts' },
@@ -65,7 +65,7 @@ const Layout = ({ children, activeTab, onTabChange, onShowCreateModal, onShowSet
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="text-gray-600 hover:text-black">
                     <User className="h-4 w-4 mr-2" />
-                    {user?.name || 'User'}
+                    {profile?.name || 'User'}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">

@@ -3,9 +3,21 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  name: string | null;
+  pin: string;
+  openrouter_api_key: string | null;
+  deepseek_api_key: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 interface AuthContextType {
-  user: any;
+  user: User | null;
   session: Session | null;
+  profile: UserProfile | null;
   isAuthenticated: boolean;
   login: (pin: string) => Promise<boolean>;
   logout: () => void;
@@ -17,6 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const isAuthenticated = !!session;
@@ -33,19 +46,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           // Fetch user profile data when authenticated
           setTimeout(async () => {
             try {
-              const { data: profile } = await supabase
+              const { data: profileData } = await supabase
                 .from('profiles')
                 .select('*')
                 .eq('user_id', session.user.id)
                 .single();
               
-              if (profile) {
-                setUser({ ...session.user, profile });
+              if (profileData) {
+                setProfile(profileData);
               }
             } catch (error) {
               console.error('Error fetching profile:', error);
             }
           }, 0);
+        } else {
+          setProfile(null);
         }
         
         setLoading(false);
@@ -101,10 +116,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setProfile(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, session, profile, isAuthenticated, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
