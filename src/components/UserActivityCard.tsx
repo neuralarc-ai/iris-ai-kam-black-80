@@ -17,17 +17,12 @@ interface UserActivity {
   content: string;
   created_at: string;
   type: string;
-  created_by: string | null;
   project: {
     name: string;
     account: {
       name: string;
     };
   };
-  created_by_profile: {
-    name: string | null;
-    pin: string;
-  } | null;
 }
 
 const UserActivityCard = () => {
@@ -68,15 +63,14 @@ const UserActivityCard = () => {
     try {
       setLoading(true);
       
-      // First fetch updates with project and account info
-      let updatesQuery = supabase
+      // Fetch updates with project and account info (without created_by for now)
+      const { data: updatesData, error: updatesError } = await supabase
         .from('updates')
         .select(`
           id,
           content,
           created_at,
           type,
-          created_by,
           project:projects!inner(
             name,
             account:accounts!inner(name)
@@ -85,35 +79,9 @@ const UserActivityCard = () => {
         .order('created_at', { ascending: false })
         .limit(15);
 
-      // Filter by selected user if not "all"
-      if (selectedUserId !== 'all') {
-        updatesQuery = updatesQuery.eq('created_by', selectedUserId);
-      }
-
-      const { data: updatesData, error: updatesError } = await updatesQuery;
-
       if (updatesError) throw updatesError;
 
-      // Fetch profiles separately to avoid relationship issues
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, name, pin');
-
-      if (profilesError) throw profilesError;
-
-      // Manually join the data
-      const enrichedActivity = (updatesData || []).map(update => {
-        const profile = profilesData?.find(p => p.id === update.created_by);
-        return {
-          ...update,
-          created_by_profile: profile ? {
-            name: profile.name,
-            pin: profile.pin
-          } : null
-        };
-      });
-
-      setUserActivity(enrichedActivity);
+      setUserActivity(updatesData || []);
     } catch (error) {
       console.error('Error fetching user activity:', error);
       toast({
@@ -135,11 +103,6 @@ const UserActivityCard = () => {
     });
   };
 
-  const getDisplayName = (profile: UserActivity['created_by_profile']) => {
-    if (!profile) return 'System';
-    return profile.name || `User ${profile.pin}`;
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -147,13 +110,13 @@ const UserActivityCard = () => {
           <div>
             <CardTitle className="flex items-center space-x-2">
               <User className="h-5 w-5" />
-              <span>User Activity</span>
+              <span>Recent Activity</span>
             </CardTitle>
-            <CardDescription>Recent updates by team member</CardDescription>
+            <CardDescription>Latest project updates from the team</CardDescription>
           </div>
-          <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+          <Select value={selectedUserId} onValueChange={setSelectedUserId} disabled>
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="Select user" />
+              <SelectValue placeholder="All Users (Coming Soon)" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Users</SelectItem>
@@ -184,7 +147,7 @@ const UserActivityCard = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="text-sm font-medium text-blue-600">
-                        {getDisplayName(activity.created_by_profile)}
+                        System Update
                       </span>
                       <span className="text-xs text-gray-500">•</span>
                       <span className="text-xs text-gray-500 capitalize">
@@ -211,12 +174,7 @@ const UserActivityCard = () => {
         ) : (
           <div className="text-center py-8">
             <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">
-              {selectedUserId === 'all' 
-                ? 'No recent activity found' 
-                : 'No activity found for selected user'
-              }
-            </p>
+            <p className="text-gray-500">No recent activity found</p>
           </div>
         )}
       </CardContent>
