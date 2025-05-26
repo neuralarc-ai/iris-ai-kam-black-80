@@ -166,6 +166,10 @@ export type Database = {
         Args: { pin_value: string }
         Returns: string
       }
+      create_user_profile: {
+        Args: { user_name: string; user_pin: string; is_admin?: boolean }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

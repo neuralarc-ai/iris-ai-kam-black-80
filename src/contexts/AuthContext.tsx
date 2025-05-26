@@ -81,7 +81,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (pin: string): Promise<boolean> => {
     try {
-      // First, use the database function to create or get auth user
+      console.log('Attempting login with PIN:', pin);
+      
+      // First, check if a profile with this PIN exists
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('pin', pin)
+        .single();
+
+      if (profileError || !profileData) {
+        console.error('Profile not found:', profileError);
+        return false;
+      }
+
+      console.log('Profile found:', profileData);
+
+      // If profile already has a user_id, try to sign in directly
+      if (profileData.user_id) {
+        console.log('Profile has user_id, attempting direct sign in');
+        const email = `pin_${pin}@iris.internal`;
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email,
+          password: pin,
+        });
+
+        if (authError) {
+          console.error('Direct auth error:', authError);
+          return false;
+        }
+
+        console.log('Direct login successful');
+        return true;
+      }
+
+      // If profile exists but no user_id, create auth user
+      console.log('Profile exists but no user_id, creating auth user');
       const { data: authUserId, error: functionError } = await supabase.rpc(
         'create_auth_user_for_pin',
         { pin_value: pin }
@@ -92,7 +127,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return false;
       }
 
-      // Now sign in with the created/existing auth user using PIN as password
+      console.log('Auth user created:', authUserId);
+
+      // Now sign in with the created auth user
       const email = `pin_${pin}@iris.internal`;
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
@@ -100,11 +137,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (authError) {
-        console.error('Auth error:', authError);
+        console.error('Auth error after creation:', authError);
         return false;
       }
 
-      console.log('Login successful:', authData.user?.id);
+      console.log('Login successful after user creation');
       return true;
     } catch (error) {
       console.error('Login error:', error);
