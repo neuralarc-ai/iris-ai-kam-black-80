@@ -18,11 +18,16 @@ interface UserActivity {
   content: string;
   created_at: string;
   type: string;
+  created_by: string;
   project: {
     name: string;
     account: {
       name: string;
     };
+  };
+  created_by_profile: {
+    name: string | null;
+    pin: string;
   };
 }
 
@@ -65,20 +70,31 @@ const UserActivityCard = () => {
     try {
       setLoading(true);
       
-      const { data: updatesData, error: updatesError } = await supabase
+      let query = supabase
         .from('updates')
         .select(`
           id,
           content,
           created_at,
           type,
+          created_by,
           project:projects!inner(
             name,
             account:accounts!inner(name)
+          ),
+          created_by_profile:profiles!updates_created_by_fkey(
+            name,
+            pin
           )
         `)
         .order('created_at', { ascending: false })
         .limit(15);
+
+      if (selectedUserId !== 'all') {
+        query = query.eq('created_by', selectedUserId);
+      }
+
+      const { data: updatesData, error: updatesError } = await query;
 
       if (updatesError) throw updatesError;
 
@@ -148,7 +164,7 @@ const UserActivityCard = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="text-sm font-medium text-blue-600">
-                        System User
+                        {activity.created_by_profile.name || `User ${activity.created_by_profile.pin}`}
                       </span>
                       <span className="text-xs text-gray-500">•</span>
                       <span className="text-xs text-gray-500 capitalize">

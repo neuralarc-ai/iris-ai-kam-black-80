@@ -78,7 +78,7 @@ const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedPro
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.project_id || !formData.content) {
+    if (!formData.project_id || !formData.content || !profile?.id) {
       toast({
         title: 'Error',
         description: 'Project and content are required',
@@ -91,7 +91,10 @@ const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedPro
     try {
       const { error } = await supabase
         .from('updates')
-        .insert([formData]);
+        .insert([{
+          ...formData,
+          created_by: profile.id
+        }]);
 
       if (error) throw error;
 

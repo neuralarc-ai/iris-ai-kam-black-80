@@ -15,11 +15,16 @@ interface Update {
   date: string;
   content: string;
   type: string;
+  created_by: string;
   project: {
     name: string;
     account: {
       name: string;
     };
+  };
+  created_by_profile: {
+    name: string | null;
+    pin: string;
   };
 }
 
@@ -52,6 +57,10 @@ const UpdatesView = () => {
           project:projects(
             name,
             account:accounts(name)
+          ),
+          created_by_profile:profiles!updates_created_by_fkey(
+            name,
+            pin
           )
         `)
         .order('date', { ascending: false })
@@ -155,6 +164,12 @@ const UpdatesView = () => {
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-gray-700 whitespace-pre-wrap mb-4">{update.content}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-sm text-gray-500">
+                    <User className="h-4 w-4" />
+                    <span>Created by {update.created_by_profile.name || `User ${update.created_by_profile.pin}`}</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -123,6 +123,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
+          created_by: string
           date: string
           id: string
           project_id: string
@@ -132,6 +133,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
+          created_by: string
           date?: string
           id?: string
           project_id: string
@@ -141,6 +143,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
+          created_by?: string
           date?: string
           id?: string
           project_id?: string
@@ -148,6 +151,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "updates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "updates_project_id_fkey"
             columns: ["project_id"]
