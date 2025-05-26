@@ -11,8 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 const Login = () => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -22,7 +21,6 @@ const Login = () => {
       return;
     }
 
-    setLoading(true);
     setError('');
 
     try {
@@ -49,8 +47,6 @@ const Login = () => {
         variant: "destructive",
       });
     }
-
-    setLoading(false);
   };
 
   return (
@@ -92,11 +88,14 @@ const Login = () => {
               className="w-full bg-black hover:bg-gray-800 text-white"
               disabled={loading || pin.length !== 6}
             >
-              {loading ? 'Authenticating...' : 'Login'}
+              {loading ? 'Checking PIN...' : 'Login'}
             </Button>
           </form>
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-center space-x-4 text-sm text-gray-500">
+              <span>Demo PINs: 123456</span>
+            </div>
+            <div className="flex justify-center space-x-4 text-sm text-gray-500 mt-2">
               <a href="#" className="hover:text-black transition-colors">Help</a>
               <a href="#" className="hover:text-black transition-colors">Privacy</a>
               <a href="#" className="hover:text-black transition-colors">Contact</a>
