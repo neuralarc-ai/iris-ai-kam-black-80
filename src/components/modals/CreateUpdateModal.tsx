@@ -81,22 +81,38 @@ const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedPro
     if (!formData.project_id || !formData.content || !profile?.id) {
       toast({
         title: 'Error',
-        description: 'Project and content are required',
+        description: 'Project, content, and user profile are required',
         variant: 'destructive',
       });
       return;
     }
 
     setLoading(true);
+    console.log('Creating update with data:', {
+      ...formData,
+      created_by: profile.id
+    });
+    
     try {
-      const { error } = await supabase
-        .from('updates')
-        .insert([{
-          ...formData,
-          created_by: profile.id
-        }]);
+      const updateData = {
+        project_id: formData.project_id,
+        content: formData.content,
+        type: formData.type,
+        date: formData.date,
+        created_by: profile.id
+      };
 
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('updates')
+        .insert([updateData])
+        .select();
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Update created successfully:', data);
 
       toast({
         title: 'Success',
@@ -115,7 +131,7 @@ const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedPro
       console.error('Error creating update:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create update',
+        description: 'Failed to create update. Please check the console for details.',
         variant: 'destructive',
       });
     } finally {

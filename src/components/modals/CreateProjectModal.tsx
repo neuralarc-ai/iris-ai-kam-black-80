@@ -79,19 +79,30 @@ const CreateProjectModal = ({ open, onOpenChange, onProjectCreated, preselectedA
     }
 
     setLoading(true);
+    console.log('Creating project with data:', formData);
+    
     try {
       const projectData = {
-        ...formData,
+        name: formData.name,
+        account_id: formData.account_id,
+        status: formData.status,
         value: formData.value ? parseFloat(formData.value) : null,
         start_date: formData.start_date || null,
         end_date: formData.end_date || null,
+        description: formData.description || null,
       };
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('projects')
-        .insert([projectData]);
+        .insert([projectData])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Project created successfully:', data);
 
       toast({
         title: 'Success',
@@ -113,7 +124,7 @@ const CreateProjectModal = ({ open, onOpenChange, onProjectCreated, preselectedA
       console.error('Error creating project:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create project',
+        description: 'Failed to create project. Please check the console for details.',
         variant: 'destructive',
       });
     } finally {

@@ -43,12 +43,25 @@ const CreateAccountModal = ({ open, onOpenChange, onAccountCreated }: CreateAcco
     }
 
     setLoading(true);
+    console.log('Creating account with data:', formData);
+    
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('accounts')
-        .insert([formData]);
+        .insert([{
+          name: formData.name,
+          type: formData.type,
+          status: formData.status,
+          description: formData.description || null
+        }])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+
+      console.log('Account created successfully:', data);
 
       toast({
         title: 'Success',
@@ -62,7 +75,7 @@ const CreateAccountModal = ({ open, onOpenChange, onAccountCreated }: CreateAcco
       console.error('Error creating account:', error);
       toast({
         title: 'Error',
-        description: 'Failed to create account',
+        description: 'Failed to create account. Please check the console for details.',
         variant: 'destructive',
       });
     } finally {
