@@ -311,7 +311,7 @@ const DashboardView = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Sales Pipeline - Changed to Area Chart */}
+        {/* Sales Pipeline - Area Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Sales Pipeline Flow</CardTitle>
@@ -380,7 +380,7 @@ const DashboardView = () => {
         </Card>
       </div>
 
-      {/* User Activity Card - New Addition */}
+      {/* User Activity Card */}
       <UserActivityCard />
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -405,7 +405,7 @@ const DashboardView = () => {
           </CardContent>
         </Card>
 
-        {/* Recent Activity - Improved Layout */}
+        {/* Recent Activity - Fixed Layout */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -491,7 +491,7 @@ const DashboardView = () => {
             </div>
           </div>
         </CardContent>
-      </div>
+      </Card>
     </div>
   );
 };
