@@ -17,6 +17,7 @@ interface UserActivity {
   content: string;
   created_at: string;
   type: string;
+  created_by: string | null;
   project: {
     name: string;
     account: {
@@ -67,31 +68,52 @@ const UserActivityCard = () => {
     try {
       setLoading(true);
       
-      let query = supabase
+      // First fetch updates with project and account info
+      let updatesQuery = supabase
         .from('updates')
         .select(`
           id,
           content,
           created_at,
           type,
+          created_by,
           project:projects!inner(
             name,
             account:accounts!inner(name)
-          ),
-          created_by_profile:profiles(name, pin)
+          )
         `)
         .order('created_at', { ascending: false })
         .limit(15);
 
       // Filter by selected user if not "all"
       if (selectedUserId !== 'all') {
-        query = query.eq('created_by', selectedUserId);
+        updatesQuery = updatesQuery.eq('created_by', selectedUserId);
       }
 
-      const { data, error } = await query;
+      const { data: updatesData, error: updatesError } = await updatesQuery;
 
-      if (error) throw error;
-      setUserActivity(data || []);
+      if (updatesError) throw updatesError;
+
+      // Fetch profiles separately to avoid relationship issues
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, name, pin');
+
+      if (profilesError) throw profilesError;
+
+      // Manually join the data
+      const enrichedActivity = (updatesData || []).map(update => {
+        const profile = profilesData?.find(p => p.id === update.created_by);
+        return {
+          ...update,
+          created_by_profile: profile ? {
+            name: profile.name,
+            pin: profile.pin
+          } : null
+        };
+      });
+
+      setUserActivity(enrichedActivity);
     } catch (error) {
       console.error('Error fetching user activity:', error);
       toast({
