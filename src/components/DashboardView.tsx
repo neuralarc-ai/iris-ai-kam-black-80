@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -57,6 +56,8 @@ interface RecentActivity {
   date: string;
   project_name?: string;
   account_name?: string;
+  created_by?: string;
+  update_type?: string;
 }
 
 interface UserActivity {
@@ -422,7 +423,7 @@ const DashboardView = () => {
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center space-x-2">
                         <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800">
-                          {activity.update_type}
+                          {activity.update_type || 'Update'}
                         </Badge>
                         <span className="text-sm font-medium text-gray-900">
                           {activity.project_name}
@@ -444,7 +445,7 @@ const DashboardView = () => {
                       </div>
                       <div className="flex items-center space-x-1 text-xs text-gray-500">
                         <User className="h-3 w-3" />
-                        <span>{activity.created_by}</span>
+                        <span>{activity.created_by || 'Unknown User'}</span>
                       </div>
                     </div>
                   </div>
@@ -491,7 +492,7 @@ const DashboardView = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };
