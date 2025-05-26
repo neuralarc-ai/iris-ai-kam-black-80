@@ -6,10 +6,14 @@ import Layout from '@/components/Layout';
 import AccountsView from '@/components/AccountsView';
 import ProjectsView from '@/components/ProjectsView';
 import UpdatesView from '@/components/UpdatesView';
+import QuickCreateModal from '@/components/QuickCreateModal';
+import SettingsModal from '@/components/modals/SettingsModal';
 
 const AppContent = () => {
   const { isAuthenticated, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('accounts');
+  const [quickCreateModalOpen, setQuickCreateModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   if (loading) {
     return (
@@ -24,18 +28,23 @@ const AppContent = () => {
   }
 
   const handleShowCreateModal = () => {
-    // TODO: Implement create modal
-    console.log('Show create modal');
+    setQuickCreateModalOpen(true);
   };
 
   const handleShowSettings = () => {
-    // TODO: Implement settings modal
-    console.log('Show settings modal');
+    setSettingsModalOpen(true);
   };
 
   const handleCreateProject = (accountId: string) => {
-    // TODO: Implement create project for account
+    // This will be handled by the AccountsView component
     console.log('Create project for account:', accountId);
+  };
+
+  const handleRefreshData = () => {
+    // Force refresh by changing tab and back
+    const currentTab = activeTab;
+    setActiveTab('');
+    setTimeout(() => setActiveTab(currentTab), 100);
   };
 
   const renderActiveView = () => {
@@ -52,14 +61,27 @@ const AppContent = () => {
   };
 
   return (
-    <Layout
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-      onShowCreateModal={handleShowCreateModal}
-      onShowSettings={handleShowSettings}
-    >
-      {renderActiveView()}
-    </Layout>
+    <>
+      <Layout
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onShowCreateModal={handleShowCreateModal}
+        onShowSettings={handleShowSettings}
+      >
+        {renderActiveView()}
+      </Layout>
+
+      <QuickCreateModal
+        open={quickCreateModalOpen}
+        onOpenChange={setQuickCreateModalOpen}
+        onItemCreated={handleRefreshData}
+      />
+
+      <SettingsModal
+        open={settingsModalOpen}
+        onOpenChange={setSettingsModalOpen}
+      />
+    </>
   );
 };
 
