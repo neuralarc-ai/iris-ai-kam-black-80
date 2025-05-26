@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Lock } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +25,29 @@ const Login = () => {
     setLoading(true);
     setError('');
 
-    const success = await login(pin);
-    if (!success) {
-      setError('Invalid PIN. Please try again.');
+    try {
+      const success = await login(pin);
+      if (!success) {
+        setError('Invalid PIN. Please try again.');
+        toast({
+          title: "Login Failed",
+          description: "Invalid PIN. Please check your credentials and try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Welcome!",
+          description: "Successfully logged in to Iris AI.",
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred during login. Please try again.');
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     }
 
     setLoading(false);
@@ -57,6 +79,7 @@ const Login = () => {
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 className="text-center text-lg tracking-widest border-gray-300 focus:border-black"
                 maxLength={6}
+                disabled={loading}
               />
             </div>
             {error && (

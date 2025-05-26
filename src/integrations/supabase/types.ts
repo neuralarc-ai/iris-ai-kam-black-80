@@ -48,6 +48,7 @@ export type Database = {
           openrouter_api_key: string | null
           pin: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -57,6 +58,7 @@ export type Database = {
           openrouter_api_key?: string | null
           pin: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -66,6 +68,7 @@ export type Database = {
           openrouter_api_key?: string | null
           pin?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -159,7 +162,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_auth_user_for_pin: {
+        Args: { pin_value: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
