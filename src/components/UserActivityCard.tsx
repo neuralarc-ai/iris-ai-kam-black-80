@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Clock } from 'lucide-react';
@@ -23,9 +24,14 @@ interface UserActivity {
       name: string;
     };
   };
+  created_by_profile: {
+    name: string | null;
+    pin: string;
+  } | null;
 }
 
 const UserActivityCard = () => {
+  const { profile } = useAuth();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>('all');
   const [userActivity, setUserActivity] = useState<UserActivity[]>([]);
@@ -63,21 +69,32 @@ const UserActivityCard = () => {
     try {
       setLoading(true);
       
-      // Fetch updates with project and account info (without created_by for now)
-      const { data: updatesData, error: updatesError } = await supabase
+      let query = supabase
         .from('updates')
         .select(`
           id,
           content,
           created_at,
           type,
+          created_by,
           project:projects!inner(
             name,
             account:accounts!inner(name)
+          ),
+          created_by_profile:profiles!updates_created_by_fkey(
+            name,
+            pin
           )
         `)
         .order('created_at', { ascending: false })
         .limit(15);
+
+      // Filter by specific user if selected
+      if (selectedUserId !== 'all') {
+        query = query.eq('created_by', selectedUserId);
+      }
+
+      const { data: updatesData, error: updatesError } = await query;
 
       if (updatesError) throw updatesError;
 
@@ -103,6 +120,13 @@ const UserActivityCard = () => {
     });
   };
 
+  const getUserDisplayName = (activity: UserActivity) => {
+    if (activity.created_by_profile) {
+      return activity.created_by_profile.name || `User ${activity.created_by_profile.pin}`;
+    }
+    return 'System';
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -114,9 +138,9 @@ const UserActivityCard = () => {
             </CardTitle>
             <CardDescription>Latest project updates from the team</CardDescription>
           </div>
-          <Select value={selectedUserId} onValueChange={setSelectedUserId} disabled>
+          <Select value={selectedUserId} onValueChange={setSelectedUserId}>
             <SelectTrigger className="w-48">
-              <SelectValue placeholder="All Users (Coming Soon)" />
+              <SelectValue placeholder="Filter by user" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Users</SelectItem>
@@ -147,7 +171,7 @@ const UserActivityCard = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="text-sm font-medium text-blue-600">
-                        System Update
+                        {getUserDisplayName(activity)}
                       </span>
                       <span className="text-xs text-gray-500">•</span>
                       <span className="text-xs text-gray-500 capitalize">
@@ -175,6 +199,11 @@ const UserActivityCard = () => {
           <div className="text-center py-8">
             <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No recent activity found</p>
+            <p className="text-sm text-gray-400 mt-2">
+              {selectedUserId !== 'all' 
+                ? 'This user has not created any updates yet.' 
+                : 'Create some updates to see activity here.'}
+            </p>
           </div>
         )}
       </CardContent>

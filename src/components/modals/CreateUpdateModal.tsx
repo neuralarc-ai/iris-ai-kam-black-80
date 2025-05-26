@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ interface CreateUpdateModalProps {
 }
 
 const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedProjectId }: CreateUpdateModalProps) => {
+  const { profile } = useAuth();
   const [formData, setFormData] = useState({
     project_id: preselectedProjectId || '',
     content: '',
@@ -66,6 +68,11 @@ const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedPro
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load projects',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -80,11 +87,25 @@ const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedPro
       return;
     }
 
+    if (!profile?.id) {
+      toast({
+        title: 'Error',
+        description: 'User profile not found',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
+      const updateData = {
+        ...formData,
+        created_by: profile.id, // Add the current user's profile ID
+      };
+
       const { error } = await supabase
         .from('updates')
-        .insert([formData]);
+        .insert([updateData]);
 
       if (error) throw error;
 

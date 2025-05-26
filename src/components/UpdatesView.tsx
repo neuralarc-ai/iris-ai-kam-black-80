@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { MessageSquare, Search, Calendar, Plus, Trash2, Edit } from 'lucide-react';
+import { MessageSquare, Search, Calendar, Plus, Trash2, Edit, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import CreateUpdateModal from './modals/CreateUpdateModal';
 
@@ -14,15 +15,21 @@ interface Update {
   date: string;
   content: string;
   type: string;
+  created_by: string | null;
   project: {
     name: string;
     account: {
       name: string;
     };
   };
+  created_by_profile: {
+    name: string | null;
+    pin: string;
+  } | null;
 }
 
 const UpdatesView = () => {
+  const { profile } = useAuth();
   const [updates, setUpdates] = useState<Update[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -42,6 +49,7 @@ const UpdatesView = () => {
 
   const fetchUpdates = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('updates')
         .select(`
@@ -49,6 +57,10 @@ const UpdatesView = () => {
           project:projects(
             name,
             account:accounts(name)
+          ),
+          created_by_profile:profiles!updates_created_by_fkey(
+            name,
+            pin
           )
         `)
         .order('date', { ascending: false })
@@ -68,7 +80,17 @@ const UpdatesView = () => {
     }
   };
 
-  const handleDeleteUpdate = async (updateId: string) => {
+  const handleDeleteUpdate = async (updateId: string, createdBy: string | null) => {
+    // Only allow users to delete their own updates
+    if (createdBy !== profile?.id) {
+      toast({
+        title: 'Error',
+        description: 'You can only delete your own updates',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!confirm('Are you sure you want to delete this update?')) {
       return;
     }
@@ -77,7 +99,8 @@ const UpdatesView = () => {
       const { error } = await supabase
         .from('updates')
         .delete()
-        .eq('id', updateId);
+        .eq('id', updateId)
+        .eq('created_by', profile?.id); // Additional security check
 
       if (error) throw error;
 
@@ -110,6 +133,17 @@ const UpdatesView = () => {
       day: 'numeric',
       year: 'numeric',
     });
+  };
+
+  const getUserDisplayName = (update: Update) => {
+    if (update.created_by_profile) {
+      return update.created_by_profile.name || `User ${update.created_by_profile.pin}`;
+    }
+    return 'System';
+  };
+
+  const canDeleteUpdate = (update: Update) => {
+    return update.created_by === profile?.id;
   };
 
   if (loading) {
@@ -178,23 +212,31 @@ const UpdatesView = () => {
                     </div>
                   </div>
                 </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-500 mt-2">
+                  <User className="h-4 w-4" />
+                  <span>Created by {getUserDisplayName(update)}</span>
+                </div>
               </CardHeader>
               <CardContent className="pt-0">
                 <p className="text-gray-700 whitespace-pre-wrap mb-4">{update.content}</p>
                 <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="border-gray-300 hover:border-black">
-                    <Edit className="h-3 w-3 mr-1" />
-                    Edit
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-red-300 text-red-600 hover:bg-red-50"
-                    onClick={() => handleDeleteUpdate(update.id)}
-                  >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
-                  </Button>
+                  {canDeleteUpdate(update) && (
+                    <>
+                      <Button variant="outline" size="sm" className="border-gray-300 hover:border-black">
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="border-red-300 text-red-600 hover:bg-red-50"
+                        onClick={() => handleDeleteUpdate(update.id, update.created_by)}
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Delete
+                      </Button>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
