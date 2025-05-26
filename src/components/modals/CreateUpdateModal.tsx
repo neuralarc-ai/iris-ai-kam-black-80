@@ -87,25 +87,11 @@ const CreateUpdateModal = ({ open, onOpenChange, onUpdateCreated, preselectedPro
       return;
     }
 
-    if (!profile?.id) {
-      toast({
-        title: 'Error',
-        description: 'User profile not found',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     setLoading(true);
     try {
-      const updateData = {
-        ...formData,
-        created_by: profile.id, // Add the current user's profile ID
-      };
-
       const { error } = await supabase
         .from('updates')
-        .insert([updateData]);
+        .insert([formData]);
 
       if (error) throw error;
 

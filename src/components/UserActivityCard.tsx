@@ -24,10 +24,6 @@ interface UserActivity {
       name: string;
     };
   };
-  created_by_profile: {
-    name: string | null;
-    pin: string;
-  } | null;
 }
 
 const UserActivityCard = () => {
@@ -69,32 +65,20 @@ const UserActivityCard = () => {
     try {
       setLoading(true);
       
-      let query = supabase
+      const { data: updatesData, error: updatesError } = await supabase
         .from('updates')
         .select(`
           id,
           content,
           created_at,
           type,
-          created_by,
           project:projects!inner(
             name,
             account:accounts!inner(name)
-          ),
-          created_by_profile:profiles!updates_created_by_fkey(
-            name,
-            pin
           )
         `)
         .order('created_at', { ascending: false })
         .limit(15);
-
-      // Filter by specific user if selected
-      if (selectedUserId !== 'all') {
-        query = query.eq('created_by', selectedUserId);
-      }
-
-      const { data: updatesData, error: updatesError } = await query;
 
       if (updatesError) throw updatesError;
 
@@ -118,13 +102,6 @@ const UserActivityCard = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
-  const getUserDisplayName = (activity: UserActivity) => {
-    if (activity.created_by_profile) {
-      return activity.created_by_profile.name || `User ${activity.created_by_profile.pin}`;
-    }
-    return 'System';
   };
 
   return (
@@ -171,7 +148,7 @@ const UserActivityCard = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="text-sm font-medium text-blue-600">
-                        {getUserDisplayName(activity)}
+                        System User
                       </span>
                       <span className="text-xs text-gray-500">•</span>
                       <span className="text-xs text-gray-500 capitalize">
@@ -200,9 +177,7 @@ const UserActivityCard = () => {
             <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-500">No recent activity found</p>
             <p className="text-sm text-gray-400 mt-2">
-              {selectedUserId !== 'all' 
-                ? 'This user has not created any updates yet.' 
-                : 'Create some updates to see activity here.'}
+              Create some updates to see activity here.
             </p>
           </div>
         )}
