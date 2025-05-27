@@ -94,7 +94,7 @@ const Login = () => {
           
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-center space-x-4 text-sm text-gray-500">
-              <span>IRIS AI by Neural Arc</span>
+              <span>a thing by Neural Arc</span>
             </div>
             <div className="flex justify-center space-x-4 text-sm text-gray-500 mt-2">
               <a href="#" className="hover:text-black transition-colors">Help</a>
