@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,11 +12,9 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
   LineChart,
-  Line
+  Line,
+  Cell
 } from 'recharts';
 import { 
   TrendingUp, 
@@ -26,7 +25,8 @@ import {
   Calendar,
   MessageSquare,
   Brain,
-  Activity
+  Activity,
+  TrendingDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UserActivityCard from './UserActivityCard';
@@ -224,6 +224,21 @@ const DashboardView = () => {
     });
   };
 
+  // Sales Funnel Data Processing
+  const getFunnelData = () => {
+    const statusOrder = ['Need Analysis', 'Qualification', 'Proposal', 'Negotiation', 'Closed Won'];
+    return statusOrder.map((status, index) => {
+      const statusData = projectsByStatus.find(p => p.status === status) || { count: 0, value: 0 };
+      return {
+        status,
+        count: statusData.count,
+        value: statusData.value,
+        width: 100 - (index * 15), // Decreasing width for funnel effect
+        color: `hsl(${220 + index * 30}, 70%, ${60 - index * 5}%)`
+      };
+    });
+  };
+
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
   if (loading) {
@@ -242,6 +257,8 @@ const DashboardView = () => {
       </div>
     );
   }
+
+  const funnelData = getFunnelData();
 
   return (
     <div className="space-y-6">
@@ -308,31 +325,49 @@ const DashboardView = () => {
       <ClientOverview />
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Sales Pipeline */}
+        {/* Sales Funnel */}
         <Card>
           <CardHeader>
-            <CardTitle>Sales Pipeline</CardTitle>
-            <CardDescription>Projects by status</CardDescription>
+            <CardTitle className="flex items-center space-x-2">
+              <TrendingDown className="h-5 w-5" />
+              <span>Sales Pipeline Funnel</span>
+            </CardTitle>
+            <CardDescription>Project flow through sales stages</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={projectsByStatus}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="status" fontSize={12} />
-                <YAxis />
-                <Tooltip 
-                  formatter={(value, name) => [
-                    name === 'count' ? `${value} projects` : formatCurrency(Number(value)),
-                    name === 'count' ? 'Projects' : 'Value'
-                  ]}
-                />
-                <Bar dataKey="count" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="space-y-4 py-4">
+              {funnelData.map((stage, index) => (
+                <div key={stage.status} className="relative">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">{stage.status}</span>
+                    <div className="text-right">
+                      <div className="text-sm font-bold">{stage.count} projects</div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatCurrency(stage.value)}
+                      </div>
+                    </div>
+                  </div>
+                  <div 
+                    className="h-12 rounded-lg flex items-center justify-center text-white font-medium transition-all hover:shadow-md"
+                    style={{
+                      backgroundColor: stage.color,
+                      width: `${stage.width}%`,
+                      marginLeft: `${(100 - stage.width) / 2}%`
+                    }}
+                  >
+                    {stage.count > 0 && (
+                      <span className="text-sm">
+                        {((stage.count / stats.totalProjects) * 100).toFixed(0)}%
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
 
-        {/* Pipeline Value Distribution */}
+        {/* Value Distribution - Horizontal Bar Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Value Distribution</CardTitle>
@@ -340,23 +375,24 @@ const DashboardView = () => {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={projectsByStatus}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ status, value }) => `${status}: ${formatCurrency(value)}`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
+              <BarChart 
+                data={projectsByStatus} 
+                layout="horizontal"
+                margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" tickFormatter={(value) => `₹${(value / 100000).toFixed(0)}L`} />
+                <YAxis dataKey="status" type="category" width={80} fontSize={12} />
+                <Tooltip 
+                  formatter={(value) => [formatCurrency(Number(value)), 'Value']}
+                  labelStyle={{ color: '#000' }}
+                />
+                <Bar dataKey="value" fill="#8884d8">
                   {projectsByStatus.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
-                </Pie>
-                <Tooltip formatter={(value) => formatCurrency(Number(value))} />
-              </PieChart>
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>

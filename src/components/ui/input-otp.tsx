@@ -25,7 +25,7 @@ const InputOTPGroup = React.forwardRef<
   React.ElementRef<"div">,
   React.ComponentPropsWithoutRef<"div">
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("flex items-center", className)} {...props} />
+  <div ref={ref} className={cn("flex items-center gap-4", className)} {...props} />
 ))
 InputOTPGroup.displayName = "InputOTPGroup"
 
@@ -40,17 +40,20 @@ const InputOTPSlot = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        "relative flex h-14 w-12 items-center justify-center border-y border-r border-input text-xl font-bold transition-all first:rounded-l-md first:border-l last:rounded-r-md",
-        isActive && "z-10 ring-2 ring-ring ring-offset-background",
+        "relative flex h-16 w-12 items-center justify-center text-2xl font-bold transition-all",
+        "border-b-2 border-gray-300 focus-within:border-black",
+        isActive && "border-black",
         className
       )}
       {...props}
     >
       {/* Display asterisk instead of actual character for PIN masking */}
-      {char ? "•" : ""}
+      <span className="text-2xl font-bold text-black">
+        {char ? "•" : ""}
+      </span>
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-6 w-px animate-caret-blink bg-foreground duration-1000" />
+          <div className="h-8 w-px animate-caret-blink bg-black duration-1000" />
         </div>
       )}
     </div>
