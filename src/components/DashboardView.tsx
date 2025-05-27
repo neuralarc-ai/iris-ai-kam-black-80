@@ -30,6 +30,9 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import UserActivityCard from './UserActivityCard';
+import UserUpdateFrequency from './UserUpdateFrequency';
+import EnhancedRecentActivity from './EnhancedRecentActivity';
+import ClientOverview from './ClientOverview';
 
 interface DashboardStats {
   totalAccounts: number;
@@ -52,6 +55,7 @@ interface RecentActivity {
   date: string;
   project_name?: string;
   account_name?: string;
+  user_name?: string;
 }
 
 interface UserActivity {
@@ -89,7 +93,7 @@ const DashboardView = () => {
       const [accountsRes, projectsRes, updatesRes] = await Promise.all([
         supabase.from('accounts').select('*', { count: 'exact', head: true }),
         supabase.from('projects').select('*, account:accounts(name)'),
-        supabase.from('updates').select('*, project:projects(name, account:accounts(name))').order('created_at', { ascending: false }).limit(10)
+        supabase.from('updates').select('*, project:projects(name, account:accounts(name)), profiles:created_by(name)').order('created_at', { ascending: false }).limit(10)
       ]);
 
       if (accountsRes.error) throw accountsRes.error;
@@ -126,14 +130,15 @@ const DashboardView = () => {
 
       setProjectsByStatus(Object.values(statusGroups));
 
-      // Format recent activity
+      // Format recent activity with enhanced data
       const formattedActivity = updates.map(update => ({
         id: update.id,
         type: 'update',
-        description: `Update added to ${update.project.name} (${update.project.account.name})`,
+        description: `Update added to ${update.project.name}`,
         date: update.created_at,
         project_name: update.project.name,
         account_name: update.project.account.name,
+        user_name: update.profiles?.name || 'Unknown User',
       }));
 
       setRecentActivity(formattedActivity);
@@ -202,9 +207,9 @@ const DashboardView = () => {
   };
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
@@ -299,6 +304,9 @@ const DashboardView = () => {
         </Card>
       </div>
 
+      {/* Client Overview - New large card */}
+      <ClientOverview />
+
       <div className="grid gap-6 md:grid-cols-2">
         {/* Sales Pipeline */}
         <Card>
@@ -354,8 +362,11 @@ const DashboardView = () => {
         </Card>
       </div>
 
-      {/* User Activity Card - New Addition */}
-      <UserActivityCard />
+      {/* User Activity and Update Frequency */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <UserActivityCard />
+        <UserUpdateFrequency />
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         {/* AI Insights */}
@@ -379,33 +390,8 @@ const DashboardView = () => {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Activity className="h-5 w-5" />
-              <span>Recent Activity</span>
-            </CardTitle>
-            <CardDescription>Latest updates across all projects</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentActivity.length > 0 ? (
-                recentActivity.slice(0, 5).map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-900">{activity.description}</p>
-                      <p className="text-xs text-gray-500">{formatDate(activity.date)}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-sm">No recent activity</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Enhanced Recent Activity */}
+        <EnhancedRecentActivity activities={recentActivity} />
       </div>
 
       {/* User Activity Monitoring */}
