@@ -57,7 +57,7 @@ const Login = () => {
             </div>
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold text-black">Iris AI</CardTitle>
+            <CardTitle className="text-2xl font-bold text-black">IRIS AI</CardTitle>
             <CardDescription className="text-gray-600">
               Key Account Management CRM
             </CardDescription>
