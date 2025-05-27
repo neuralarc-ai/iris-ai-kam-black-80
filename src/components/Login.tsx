@@ -94,9 +94,9 @@ const Login = () => {
           
           <div className="mt-6 pt-6 border-t border-gray-200">
             <div className="flex justify-center space-x-4 text-sm text-gray-500">
-              <span>a thing by Neural Arc</span>
+              <span className="text-sm">a thing by Neural Arc</span>
             </div>
-            <div className="flex justify-center space-x-4 text-sm text-gray-500 mt-2">
+            <div className="flex justify-center space-x-4 text-sm text-gray-500 mt-2 my-[10px]">
               <a href="#" className="hover:text-black transition-colors">Help</a>
               <a href="#" className="hover:text-black transition-colors">Privacy</a>
               <a href="#" className="hover:text-black transition-colors">Contact</a>
