@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -78,11 +77,10 @@ const UserUpdateFrequency = () => {
   return (
     <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Activity className="h-5 w-5 text-purple-600" />
+        <CardTitle className="flex items-center space-x-2 text-purple-800 font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>
           <span className="text-purple-800">User Update Frequency</span>
         </CardTitle>
-        <CardDescription className="text-purple-600">Activity levels over the last 30 days</CardDescription>
+        <CardDescription className="text-purple-600 font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Activity levels over the last 30 days</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={220}>

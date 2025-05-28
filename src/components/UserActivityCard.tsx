@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -125,11 +124,10 @@ const UserActivityCard = () => {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="flex items-center space-x-2">
-              <User className="h-5 w-5" />
+            <CardTitle className="flex items-center space-x-2 font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>
               <span>Recent Activity</span>
             </CardTitle>
-            <CardDescription>Latest project updates from the team</CardDescription>
+            <CardDescription className="font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Latest project updates from the team</CardDescription>
           </div>
           <Select value={selectedUserId} onValueChange={setSelectedUserId}>
             <SelectTrigger className="w-48">
