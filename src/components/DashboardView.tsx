@@ -268,11 +268,10 @@ const DashboardView = () => {
     <Card className="w-full mx-auto">
       <CardContent className="p-6 space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-3xl font-bold text-black font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>Dashboard</h2>
+          <h2 className="text-3xl font-bold text-black font-fustat font-bold text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>Dashboard</h2>
           <Button 
             onClick={fetchDashboardData}
-            variant="outline"
-            className="border-gray-300 hover:border-black"
+            className="flex items-center justify-center text-white px-6 py-3 border-gray-600" style={{ background: 'linear-gradient(85.21deg, #79685D 1.57%, #2B2521 94.2%)' }}
           >
             <Activity className="h-4 w-4 mr-2" />
             Refresh
@@ -281,47 +280,91 @@ const DashboardView = () => {
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Accounts</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalAccounts}</div>
-              <p className="text-xs text-muted-foreground">Active customer accounts</p>
+          <Card className="relative overflow-hidden rounded-lg p-4">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: 'url(/images/bg.png)' }}
+            />
+            {/* Custom Color Overlay */}
+            <div className="absolute inset-0 bg-[#F8F8F7]/5" />
+            {/* Card Content */}
+            <CardContent className="!p-0 flex items-center justify-between gap-4 relative">
+              {/* Left side: Label and Description */}
+              <div>
+                <CardTitle className="text-sm font-medium text-gray-800">Total Accounts</CardTitle>
+                <p className="text-xs text-gray-600">Active customer accounts</p>
+              </div>
+              {/* Right side: Value in styled container */}
+              <div className="flex-shrink-0 bg-[#F8F8F7]/75 text-gray-800 px-4 py-2 rounded-md flex items-center justify-center">
+                <div className="text-xl font-bold">{stats.totalAccounts}</div>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-              <FolderOpen className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalProjects}</div>
-              <p className="text-xs text-muted-foreground">Projects in pipeline</p>
+          <Card className="relative overflow-hidden rounded-lg p-4">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: 'url(/images/bg.png)' }}
+            />
+            {/* Custom Color Overlay */}
+            <div className="absolute inset-0 bg-[#F8F8F7]/45" />
+            {/* Card Content */}
+            <CardContent className="!p-0 flex items-center justify-between gap-4 relative">
+              {/* Left side: Label and Description */}
+              <div>
+                <CardTitle className="text-sm font-medium text-gray-800">Active Projects</CardTitle>
+                <p className="text-xs text-gray-600">Projects in pipeline</p>
+              </div>
+              {/* Right side: Value in styled container */}
+              <div className="flex-shrink-0 bg-[#F8F8F7]/75 text-gray-800 px-4 py-2 rounded-md flex items-center justify-center">
+                <div className="text-xl font-bold">{stats.totalProjects}</div>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pipeline Value</CardTitle>
-              <IndianRupee className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(stats.totalPipelineValue)}</div>
-              <p className="text-xs text-muted-foreground">Total opportunity value</p>
+          <Card className="relative overflow-hidden rounded-lg p-4">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: 'url(/images/bg.png)' }}
+            />
+            {/* Custom Color Overlay */}
+            <div className="absolute inset-0 bg-[#F8F8F7]/45" />
+            {/* Card Content */}
+            <CardContent className="!p-0 flex items-center justify-between gap-4 relative">
+              {/* Left side: Label and Description */}
+              <div>
+                <CardTitle className="text-sm font-medium text-gray-800">Pipeline Value</CardTitle>
+                <p className="text-xs text-gray-600">Total opportunity value</p>
+              </div>
+              {/* Right side: Value in styled container */}
+              <div className="flex-shrink-0 bg-[#F8F8F7]/75 text-gray-800 px-4 py-2 rounded-md flex items-center justify-center">
+                <div className="text-xl font-bold">{formatCurrency(stats.totalPipelineValue)}</div>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.recentUpdatesCount}</div>
-              <p className="text-xs text-muted-foreground">Updates this week</p>
+          <Card className="relative overflow-hidden rounded-lg p-4">
+            {/* Background Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: 'url(/images/bg.png)' }}
+            />
+            {/* Custom Color Overlay */}
+            <div className="absolute inset-0 bg-[#F8F8F7]/45" />
+            {/* Card Content */}
+            <CardContent className="!p-0 flex items-center justify-between gap-4 relative">
+              {/* Left side: Label and Description */}
+              <div>
+                <CardTitle className="text-sm font-medium text-gray-800">Recent Activity</CardTitle>
+                <p className="text-xs text-gray-600">Updates this week</p>
+              </div>
+              {/* Right side: Value in styled container */}
+              <div className="flex-shrink-0 bg-[#F8F8F7]/75 text-gray-800 px-4 py-2 rounded-md flex items-center justify-center">
+                <div className="text-xl font-bold">{stats.recentUpdatesCount}</div>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -345,10 +388,10 @@ const DashboardView = () => {
             <div className="relative p-6">
               {/* Card Header - Ensure text is visible */}
               <CardHeader className="!p-0 mb-6">
-                <CardTitle className="flex items-center space-x-2 text-black font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>
+                <CardTitle className="flex items-center space-x-2 text-white font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>
                   <span>Sales Pipeline Funnel</span>
                 </CardTitle>
-                <CardDescription className="text-gray-600 font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Project flow through sales stages</CardDescription>
+                <CardDescription className="text-gray-300 font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Project flow through sales stages</CardDescription>
               </CardHeader>
               
               {/* Chart and Legend Containers with semi-transparent grey background */}
@@ -409,8 +452,8 @@ const DashboardView = () => {
             <div className="absolute inset-0 bg-[#2B2521]/85" />
             <div className="relative">
               <CardHeader>
-                <CardTitle className="text-black font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>Value Distribution</CardTitle>
-                <CardDescription className="text-gray-600 font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Pipeline value by status</CardDescription>
+                <CardTitle className="text-white font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>Value Distribution</CardTitle>
+                <CardDescription className="text-gray-300 font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Pipeline value by status</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -466,24 +509,25 @@ const DashboardView = () => {
         {/* AI Insights - Only one card now */}
         <div className="grid gap-6 md:grid-cols-1">
           <Card className="relative overflow-hidden">
+            {/* Background Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: 'url(/images/bg2.png)' }}
+              style={{ backgroundImage: 'url(/images/bg1.png)', filter: 'contrast(1.0)' }}
             />
+            {/* Custom Color Overlay */}
             <div className="absolute inset-0 bg-white/50" />
-            <div className="relative">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-white font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>
+            <div className="relative p-6">
+              <CardHeader className="!p-0 mb-4">
+                <CardTitle className="flex items-center space-x-2 text-black font-fustat font-medium text-[32px] leading-[36px]" style={{ letterSpacing: '-0.02em', verticalAlign: 'middle' }}>
                   <span>AI Insights</span>
                 </CardTitle>
-                <CardDescription className="text-gray-400 font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Smart recommendations based on your data</CardDescription>
+                <CardDescription className="text-gray-600 font-fustat font-normal text-[19.51px] leading-[39.01px]" style={{ letterSpacing: '-0.004em', verticalAlign: 'middle' }}>Smart recommendations based on your data</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="!p-0">
                 <div className="space-y-3">
                   {aiInsights.map((insight, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                      <Brain className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-blue-800">{insight}</p>
+                    <div key={index} className="flex items-center p-4 rounded-lg bg-[#FFFFFF]/40">
+                      <p className="text-sm text-gray-800">{insight}</p>
                     </div>
                   ))}
                 </div>
@@ -494,10 +538,12 @@ const DashboardView = () => {
 
         {/* User Activity Monitoring */}
         <Card className="relative overflow-hidden">
+          {/* Background Image with Contrast */}
           <div 
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: 'url(/images/bg3.png)' }}
+            style={{ backgroundImage: 'url(/images/bg2.png)', filter: 'contrast(2.2)', transform: 'rotate(90deg)' }}
           />
+          {/* Custom Color Overlay */}
           <div className="absolute inset-0 bg-white/50" />
           <div className="relative">
             <CardHeader>
@@ -508,12 +554,12 @@ const DashboardView = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-[#FFFFFF]/40">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     <div>
-                      <p className="font-medium text-green-800">System Active</p>
-                      <p className="text-sm text-green-600">All users showing regular activity</p>
+                      <p className="font-medium text-gray-800">System Active</p>
+                      <p className="text-sm text-gray-600">All users showing regular activity</p>
                     </div>
                   </div>
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
@@ -521,7 +567,7 @@ const DashboardView = () => {
                   </Badge>
                 </div>
                 
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-800 p-4 rounded-lg bg-[#FFFFFF]/40">
                   <p>• Last activity tracked for all users</p>
                   <p>• No inactive users detected (7+ days without updates)</p>
                   <p>• Average activity level: Good</p>
